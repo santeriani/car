@@ -1,0 +1,3 @@
+backend/node_modules/
+car-app/build/
+car-app/*.user
