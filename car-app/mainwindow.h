@@ -28,12 +28,16 @@ public:
 private slots:
     void btnGetSlot();
     void getCarSlot();
+    void btnAddSlot();
+    void addCarSlot();
+    void CarSelected();
 
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;
     QNetworkReply *reply;
     QByteArray response_data;
+    int selectedId = -1;
 
 };
-#endif // MAINWINDOW_H
+#endif
