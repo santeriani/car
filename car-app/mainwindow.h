@@ -31,6 +31,10 @@ private slots:
     void btnAddSlot();
     void addCarSlot();
     void CarSelected();
+    void btnDeleteSlot();
+    void deleteCarSlot();
+    void btnEditSlot();
+    void editCarSlot();
 
 private:
     Ui::MainWindow *ui;

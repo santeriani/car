@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     manager = new QNetworkAccessManager(this);
     connect(ui->btnAdd, &QPushButton::clicked, this, &MainWindow::btnAddSlot);
     connect(ui->listWidget, &QListWidget::itemClicked, this, &MainWindow::CarSelected);
+    connect(ui->btnDelete, &QPushButton::clicked, this, &MainWindow::btnDeleteSlot);
+    connect(ui->btnEdit, &QPushButton::clicked, this, &MainWindow::btnEditSlot);
 }
 
 MainWindow::~MainWindow()
@@ -80,6 +82,46 @@ void MainWindow::btnAddSlot()
             this, &MainWindow::addCarSlot);
 }
 
+void MainWindow::btnDeleteSlot()
+{
+    if(selectedId == -1)
+    {
+        qDebug() << "No car selected!";
+        return;
+    }
+
+    QString site_url = "http://127.0.0.1:3000/car/" + QString::number(selectedId);
+    QNetworkRequest request(site_url);
+
+    reply = manager->deleteResource(request);
+
+    connect(reply, &QNetworkReply::finished,
+            this, &MainWindow::deleteCarSlot);
+}
+
+void MainWindow::btnEditSlot()
+{
+    if(selectedId == -1)
+        return;
+    QString branch = ui->TextCarBrand->text();
+    QString model = ui->TextCarModel->text();
+
+    QJsonObject json;
+    json.insert("branch", branch);
+    json.insert("model", model);
+    QJsonDocument doc(json);
+    QByteArray data = doc.toJson();
+    QString site_url = "http://127.0.0.1:3000/car/" + QString::number(selectedId);
+    QNetworkRequest request(site_url);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    reply = manager->put(request, data);
+
+    connect(reply, &QNetworkReply::finished,
+            this, &MainWindow::editCarSlot);
+}
+
 void MainWindow::addCarSlot()
 {
     QByteArray response = reply->readAll();
@@ -100,6 +142,26 @@ void MainWindow::CarSelected()
     selectedId = idPart.trimmed().toInt();
 
     qDebug() << "Selected ID:" << selectedId;
+}
+
+void MainWindow::deleteCarSlot()
+{
+    QByteArray response = reply->readAll();
+
+    reply->deleteLater();
+    selectedId = -1;
+    btnGetSlot();
+}
+void MainWindow::editCarSlot()
+{
+    QByteArray response = reply->readAll();
+
+    reply->deleteLater();
+    btnGetSlot();
+    ui->TextCarBrand->clear();
+    ui->TextCarModel->clear();
+
+    selectedId = -1;
 }
 
 
